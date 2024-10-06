@@ -1,0 +1,26 @@
+<rail version="0.1">
+
+<output>
+    <boolean
+        name="is_harmful"
+        description="Does the input text contain harmful content? Output true if harmful, false if not."
+    />
+</output>
+
+<prompt>
+
+You are a content moderation assistant.
+
+User Input: "{{input_text}}"
+
+Determine if the user input contains any harmful content such as hate speech, harassment, violence, or other disallowed content. Respond with "true" if the input is harmful, or "false" if it is not.
+
+Provide your answer in the following JSON format:
+
+{
+  "is_harmful": true or false
+}
+
+</prompt>
+
+</rail>

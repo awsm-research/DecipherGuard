@@ -1,0 +1,9 @@
+define flow self check input
+  $allowed = execute self_check_input
+  create event VariableValue(name="allowed", value="{$allowed}")
+  if not $allowed
+    bot refuse to respond
+    stop
+
+define bot refuse to respond
+  "I'm sorry, I can't respond to that123"

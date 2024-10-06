@@ -1,0 +1,14 @@
+datasets==2.20.0
+deep_translator==1.11.4
+guardrails==2.0.0
+openai==1.51.0
+pandas==2.2.3
+scikit_learn==1.5.2
+torch==2.4.0
+tqdm==4.66.5
+transformers==4.45.1
+googletrans==3.0.0
+guardrails-ai==0.5.13
+guardrails-api-client==0.3.13
+guardrails_hub_types==0.0.4
+openai==1.51.0

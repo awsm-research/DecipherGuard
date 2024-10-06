@@ -1,0 +1,2 @@
+Attack,Dataset,Accuracy,Precision,Recall,F1 Score,AUPRC,Attack Success Rate
+Baseline,deepInception,0.92,1.0,0.92,0.9583333333333334,1.0,0.08

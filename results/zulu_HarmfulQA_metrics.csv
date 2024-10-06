@@ -1,0 +1,2 @@
+Attack,Dataset,Accuracy,Precision,Recall,F1 Score,AUPRC,Attack Success Rate
+Baseline,HarmfulQA,0.20918367346938777,1.0,0.20918367346938777,0.3459915611814346,1.0,0.7908163265306123

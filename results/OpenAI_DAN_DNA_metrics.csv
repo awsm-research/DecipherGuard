@@ -1,0 +1,2 @@
+Attack,Dataset,Accuracy,Precision,Recall,F1 Score,AUPRC,Attack Success Rate
+Baseline,DNA,0.720763723150358,1.0,0.720763723150358,0.8377253814147018,1.0,0.27923627684964203
