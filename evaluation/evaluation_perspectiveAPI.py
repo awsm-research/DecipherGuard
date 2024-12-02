@@ -12,7 +12,7 @@ from attacks.attack_utils import *
 from utils.utils import *
 
 # Define your Google Perspective API key
-API_KEY = 'AIzaSyCmLCChKBxSWK8h9-f2B1j_NM4Mdk9dlb4'
+API_KEY = '' #TODO Replace with your token
 client = discovery.build(
     "commentanalyzer",
     "v1alpha1",
@@ -94,8 +94,8 @@ def evaluate_guardrail(prompts, categories, dataset_name, attack_name, guardrail
     dataset_results = []
     preds = []
     probs = []
-    for i in tqdm(range(prompts)):
-        prob = evaluate_toxicity(prompts[i])
+    for prompt in tqdm(prompts):
+        prob = evaluate_toxicity(prompt)
         probs.append(prob)
         preds.append(1 if prob > 0.5 else 0)
         time.sleep(0.9)
@@ -104,7 +104,7 @@ def evaluate_guardrail(prompts, categories, dataset_name, attack_name, guardrail
     for idx, prompt in enumerate(prompts):
         result = {
             'prompt': prompt,
-            'category': categories[dataset_name][idx],
+            'category': categories[idx],
             'ID': f'{guardrail_name}_{dataset_name}_{attack_name[idx]}_{idx}',
             'attack_method': attack_name[idx],
             'guardrail': guardrail_name,
@@ -120,20 +120,20 @@ def evaluate_guardrail(prompts, categories, dataset_name, attack_name, guardrail
 def main():
     # Load datasets
     all_file_paths = [
-                            "../data/split_attack_prompts/AIM_data",
-                            "../data/split_attack_prompts/base64_data",
-                            "../data/split_attack_prompts/caesar_cipher_data",
-                            "../data/split_attack_prompts/CC_data",
-                            "../data/split_attack_prompts/combination_data",
-                            "../data/split_attack_prompts/DAN_data",
-                            "../data/split_attack_prompts/deepInception_data",
-                            "../data/split_attack_prompts/dual_use_data",
-                            "../data/split_attack_prompts/self_cipher_data",
-                            "../data/split_attack_prompts/zulu_data",
+                            "./data/split_attack_prompts/AIM_data",
+                            "./data/split_attack_prompts/base64_data",
+                            "./data/split_attack_prompts/caesar_cipher_data",
+                            "./data/split_attack_prompts/CC_data",
+                            "./data/split_attack_prompts/combination_data",
+                            "./data/split_attack_prompts/DAN_data",
+                            "./data/split_attack_prompts/deepInception_data",
+                            "./data/split_attack_prompts/dual_use_data",
+                            "./data/split_attack_prompts/self_cipher_data",
+                            "./data/split_attack_prompts/zulu_data",
                         ] 
     test_df = load_and_concatenate_test_csv(all_file_paths, subset="test", percentage=1) #since all test.csvs are the same, just need to load once
     test_plain = test_df["prompt"].tolist()
-    test_plain = set(test_plain)
+    test_plain = list(set(test_plain))
     test_attacked = test_df["transformed_prompt"].tolist()
     categories = test_df['Summarized Category'].tolist()
     methods = test_df['attack_method'].tolist()
@@ -144,8 +144,7 @@ def main():
     attacked_results= evaluate_guardrail(test_attacked, categories, '80_test', methods, guardrail_name = 'PerspectiveAPI')
     plain_results= evaluate_guardrail(test_plain, categories, '80_test', methods, guardrail_name = 'PerspectiveAPI')
     # Save results and metrics
-    dataset_results = plain_results.append(plain_results, ignore_index=True)
-
+    dataset_results = plain_results+attacked_results
 
     save_results(dataset_results,  '80_test', 'PerspectiveAPI')
 

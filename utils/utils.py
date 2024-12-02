@@ -89,10 +89,7 @@ def save_results(results,  attack_name, guardrail_name):
     os.makedirs(output_dir, exist_ok=True)
 
     # Save results
-    results_df = pd.DataFrame(results, columns=['prompt', 'transformed_prompt', 'category', 'ID', 'attack_method', 'guardrail', 'plain_probability',  
-            'plain_label',
-            'attack_probability',  
-            'attack_label'])
+    results_df = pd.DataFrame(results, columns=['prompt', 'transformed_prompt', 'category', 'ID', 'attack_method', 'guardrail', 'probability','pred'])
     output_file = os.path.join(output_dir, f'{guardrail_name}_{attack_name}_results.csv')
     results_df.to_csv(output_file, index=False)
 

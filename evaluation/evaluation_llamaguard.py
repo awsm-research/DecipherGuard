@@ -10,24 +10,11 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from deep_translator import GoogleTranslator
 import base64
 import random
+
 from attacks.attack_utils import *
 from utils.utils import *
 
-# Map attack names to functions
-attack_functions = {
-    'AIM': AIM,
-    'DAN': DAN,
-    'combination': combination,
-    'base64': base64_attack,
-    'dual_use': SmartGPT_Attack,
-    'caesar_cipher': caesar_attack,
-    'self_cipher': self_cipher_attack,
-    'zulu': translate_to_zulu,
-    'deepInception': deepInception_attack,
-    'ICA': in_context_attack,
-    'CC': code_chameleon
-    
-}
+
 def load_and_concatenate_test_csv(file_paths, subset, percentage):
     temp = [file+f"_{percentage}_percent/"+f"{subset}.csv" for file in file_paths]
     # Load each CSV into a list of DataFrames
@@ -47,7 +34,7 @@ def evaluate_guardrail(model, tokenizer, prompts, categories, dataset_name, atta
 
     formatted_prompts = transform_dataset_prompt(prompts)
 
-    for chat in formatted_prompts:
+    for chat in tqdm(formatted_prompts):
         pred = moderate(chat, tokenizer, model)
         prob = moderate_probability(chat, tokenizer, model)
 
@@ -66,7 +53,7 @@ def evaluate_guardrail(model, tokenizer, prompts, categories, dataset_name, atta
             'attack_method': attack_name[idx],
             'guardrail': guardrail_name,
             'probability': probs[idx],  
-            'pred': preds[idx],
+            'pred': preds[idx]
         }
 
         dataset_results.append(result)
@@ -106,20 +93,20 @@ def main():
 
     # Load data
     all_file_paths = [
-                        "../data/split_attack_prompts/AIM_data",
-                        "../data/split_attack_prompts/base64_data",
-                        "../data/split_attack_prompts/caesar_cipher_data",
-                        "../data/split_attack_prompts/CC_data",
-                        "../data/split_attack_prompts/combination_data",
-                        "../data/split_attack_prompts/DAN_data",
-                        "../data/split_attack_prompts/deepInception_data",
-                        "../data/split_attack_prompts/dual_use_data",
-                        "../data/split_attack_prompts/self_cipher_data",
-                        "../data/split_attack_prompts/zulu_data",
+                        "./data/split_attack_prompts/AIM_data",
+                        "./data/split_attack_prompts/base64_data",
+                        "./data/split_attack_prompts/caesar_cipher_data",
+                        "./data/split_attack_prompts/CC_data",
+                        "./data/split_attack_prompts/combination_data",
+                        "./data/split_attack_prompts/DAN_data",
+                        "./data/split_attack_prompts/deepInception_data",
+                        "./data/split_attack_prompts/dual_use_data",
+                        "./data/split_attack_prompts/self_cipher_data",
+                        "./data/split_attack_prompts/zulu_data",
                     ] 
     test_df = load_and_concatenate_test_csv(all_file_paths, subset="test", percentage=1) #since all test.csvs are the same, just need to load once
     test_plain = test_df["prompt"].tolist()
-    test_plain = set(test_plain)
+    test_plain = list(set(test_plain))
     test_attacked = test_df["transformed_prompt"].tolist()
     categories = test_df['Summarized Category'].tolist()
     methods = test_df['attack_method'].tolist()
@@ -128,7 +115,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
 
-    hf_token = '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'  # Replace with your token
+    hf_token = ''  #TODO Replace with your token
     model_id = "meta-llama/Llama-Guard-3-8B"
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, token=hf_token)
@@ -136,10 +123,10 @@ def main():
 
     # transformed_prompts = transform_dataset_prompt(attacked_prompts)
 
-    attacked_results= evaluate_guardrail(test_attacked, categories, '80_test', methods, guardrail_name = 'LlamaGuard')
-    plain_results= evaluate_guardrail(test_plain, categories, '80_test', methods, guardrail_name = 'LlamaGuard')
+    attacked_results= evaluate_guardrail(model,tokenizer,test_attacked, categories, '80_test', methods, guardrail_name = 'LlamaGuard')
+    plain_results= evaluate_guardrail(model,tokenizer,test_plain, categories, '80_test', methods, guardrail_name = 'LlamaGuard')
     # Save results and metrics
-    dataset_results = plain_results.append(plain_results, ignore_index=True)
+    dataset_results = plain_results+attacked_results
 
     save_results(dataset_results,  '80_test', 'LlamaGuard')
             

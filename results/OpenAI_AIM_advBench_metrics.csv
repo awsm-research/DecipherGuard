@@ -1,2 +1,0 @@
-Attack,Dataset,Accuracy,Precision,Recall,F1 Score,AUPRC,Attack Success Rate
-Baseline,advBench,0.8980769230769231,1.0,0.8980769230769231,0.9463019250253293,1.0,0.10192307692307692

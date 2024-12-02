@@ -14,25 +14,9 @@ import random
 from attacks.attack_utils import *
 from openai import OpenAI
 from utils.utils import *
-client = OpenAI(api_key='sk-X822VaC_qofb5vCPEPh_OeYY5Ch7Pnt4q03eCGt498T3BlbkFJTc2DkWYpRrko3Cvh38VnjIxAVxc0MDlCIyDPjJ_G4A')
+client = OpenAI(api_key='') #TODO Replace with your token
 
 
-# To add more jailbreaks:
-
-# Map attack names to functions
-attack_functions = {
-    'AIM': AIM,
-    'DAN': DAN,
-    'combination': combination,
-    'base64': base64_attack,
-    'dual_use': SmartGPT_Attack,
-    'caesar_cipher': caesar_attack,
-    'self_cipher': self_cipher_attack,
-    'zulu': translate_to_zulu,
-    'deepInception': deepInception_attack,
-    'CC': code_chameleon
-    
-}
 
 def load_and_concatenate_test_csv(file_paths, subset, percentage):
     temp = [file+f"_{percentage}_percent/"+f"{subset}.csv" for file in file_paths]
@@ -51,16 +35,17 @@ def evaluate_guardrail(prompts, categories, dataset_name, attack_name, guardrail
     preds = []
     probs = []
     responses = []
-    batch_size = max(1, len(transformed_prompts) // 10)  # Calculate 10% of the data or at least 1
-    num_batches = (len(transformed_prompts) + batch_size - 1) // batch_size  # Ensure all data is processed
+    batch_size = max(1, len(prompts) // 10)  # Calculate 10% of the data or at least 1
+    num_batches = (len(prompts) + batch_size - 1) // batch_size  # Ensure all data is processed
 
-    for batch in tqdm(range(num_batches)):
+    for batch in range(num_batches):
         # Process prompts in the current batch
         start_idx = batch * batch_size
-        end_idx = min((batch + 1) * batch_size, len(transformed_prompts))
-        batch_prompts = transformed_prompts[start_idx:end_idx]
+        end_idx = min((batch + 1) * batch_size, len(prompts))
+        batch_prompts = prompts[start_idx:end_idx]
 
-        for prompt in batch_prompts:
+        for prompt in tqdm(batch_prompts):
+
             response = client.moderations.create(
                 model="omni-moderation-latest",
                 input=[prompt]
@@ -68,7 +53,7 @@ def evaluate_guardrail(prompts, categories, dataset_name, attack_name, guardrail
             responses.append(response)
             time.sleep(1)
         
-        time.sleep(60)  # Sleep for 60 seconds after processing the batc
+        # time.sleep(60)  # Sleep for 60 seconds after processing the batc
 
             
     for chat in range(len(prompts)):
@@ -78,9 +63,9 @@ def evaluate_guardrail(prompts, categories, dataset_name, attack_name, guardrail
             preds.append(1)
         
 
-    for i in range(responses):
+    for resp in responses:
         try:
-            scores = list(responses[i].results[0].category_scores)
+            scores = list(resp.results[0].category_scores)
             sorted_scores = sorted(scores, key=lambda x: x[1], reverse=True)
             probs.append(sorted_scores[0][1])
         except (TypeError, AttributeError, IndexError) as e:
@@ -113,20 +98,20 @@ def main():
 
     # Load datasets
     all_file_paths = [
-                        "../data/split_attack_prompts/AIM_data",
-                        "../data/split_attack_prompts/base64_data",
-                        "../data/split_attack_prompts/caesar_cipher_data",
-                        "../data/split_attack_prompts/CC_data",
-                        "../data/split_attack_prompts/combination_data",
-                        "../data/split_attack_prompts/DAN_data",
-                        "../data/split_attack_prompts/deepInception_data",
-                        "../data/split_attack_prompts/dual_use_data",
-                        "../data/split_attack_prompts/self_cipher_data",
-                        "../data/split_attack_prompts/zulu_data",
+                        "./data/split_attack_prompts/AIM_data",
+                        "./data/split_attack_prompts/base64_data",
+                        "./data/split_attack_prompts/caesar_cipher_data",
+                        "./data/split_attack_prompts/CC_data",
+                        "./data/split_attack_prompts/combination_data",
+                        "./data/split_attack_prompts/DAN_data",
+                        "./data/split_attack_prompts/deepInception_data",
+                        "./data/split_attack_prompts/dual_use_data",
+                        "./data/split_attack_prompts/self_cipher_data",
+                        "./data/split_attack_prompts/zulu_data",
                     ] 
     test_df = load_and_concatenate_test_csv(all_file_paths, subset="test", percentage=1) #since all test.csvs are the same, just need to load once
     test_plain = test_df["prompt"].tolist()
-    test_plain = set(test_plain)
+    test_plain = list(set(test_plain))
     test_attacked = test_df["transformed_prompt"].tolist()
     categories = test_df['Summarized Category'].tolist()
     methods = test_df['attack_method'].tolist()
@@ -138,7 +123,7 @@ def main():
     attacked_results = evaluate_guardrail(test_attacked, categories, '80_test', methods, guardrail_name = 'OpenAI')
     plain_results = evaluate_guardrail(test_plain,  categories, '80_test', methods, guardrail_name = 'OpenAI')
     # Save results and metrics
-    dataset_results = plain_results.append(plain_results, ignore_index=True)
+    dataset_results = plain_results+attacked_results
     save_results(dataset_results,  '80_test', 'OpenAI')
             
  

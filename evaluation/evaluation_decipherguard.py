@@ -14,39 +14,11 @@ import base64
 import random
 from datetime import datetime
 import pickle
-import pandas as pd
 from lingua import Language, LanguageDetectorBuilder
 from googletrans import Translator, constants
-from tqdm import tqdm
+from attacks.attack_utils import *
+from utils.utils import *
 
-# Function to save results and metrics
-def save_results_and_metrics(results, metrics, attack_name, guardrail_name):
-    output_dir = 'results/'+guardrail_name
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Save results
-    results_df = pd.DataFrame(results, columns=['prompt', 'transformed_prompt', 'category', 'ID', 'attack_method', 'guardrail', 'probability', 'label'])
-    output_file = os.path.join(output_dir, f'{guardrail_name}_{attack_name}_results.csv')
-    results_df.to_csv(output_file, index=False)
-
-    # Save metrics
-    # metrics_df = pd.DataFrame(metrics, columns=['Attack', 'Dataset', 'Accuracy', 'Precision', 'Recall', 'F1 Score', 'AUPRC', 'Attack Success Rate'])
-    # output_file = os.path.join(output_dir, f'{guardrail_name}_{attack_name}_{dataset_name}_metrics.csv')
-    # metrics_df.to_csv(output_file, index=False)
-
-    print(f"Results and metrics saved to {output_file}")
-
-
-def save_results_and_metrics_time(results, metrics, attack_name, guardrail_name):
-    output_dir = 'results/'+guardrail_name
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Save results
-    results_df = pd.DataFrame(results, columns=['prompt', 'transformed_prompt', 'category', 'ID', 'attack_method', 'guardrail', 'probability', 'label', 'time'])
-    output_file = os.path.join(output_dir, f'{guardrail_name}_{attack_name}_results.csv')
-    results_df.to_csv(output_file, index=False)
-
-    print(f"Results and metrics saved to {output_file}")
 
 detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
 translator = Translator()
@@ -69,8 +41,17 @@ def caesar_encrypt(plaintext, shift):
     
     return encrypted_text
 
+
+def load_and_concatenate_test_csv(file_paths, subset, percentage):
+    temp = [file+f"_{percentage}_percent/"+f"{subset}.csv" for file in file_paths]
+    # Load each CSV into a list of DataFrames
+    dfs = [pd.read_csv(file+f"_{percentage}_percent/"+f"{subset}.csv") for file in file_paths]
+    # Concatenate all DataFrames into one
+    combined_df = pd.concat(dfs, ignore_index=True)
+    return combined_df
+
 # Function to evaluate guardrails
-def evaluate_guardrail(model, tokenizer, prompts, transformed_prompts, categories,  attack_name, guardrail_name="DecipherGuard_LlamaGuard",is_baseline=False):
+def evaluate_guardrail(model, tokenizer, prompts, categories, dataset_name, attack_name, guardrail_name="DecipherGuard"):
     dataset_results = []
     preds = []
     probs = []
@@ -80,7 +61,7 @@ def evaluate_guardrail(model, tokenizer, prompts, transformed_prompts, categorie
     zulu_time = []
     cipher_time = []
     
-    for chat in tqdm(transformed_prompts):
+    for chat in tqdm(prompts):
         with torch.no_grad():
             start = datetime.now()
             model_input = decode_base64(chat)
@@ -142,19 +123,18 @@ def evaluate_guardrail(model, tokenizer, prompts, transformed_prompts, categorie
     for idx, prompt in enumerate(prompts):
         result = {
             'prompt': prompt,
-            'transformed_prompt': '-' if is_baseline else transformed_prompts[idx],
             'category': categories[idx],
-            'ID': guardrail_name+'_'+attack_name[idx]+'_'+str(idx),
+            'ID': f'{guardrail_name}_{dataset_name}_{attack_name[idx]}_{idx}',
             'attack_method': attack_name[idx],
             'guardrail': guardrail_name,
             'probability': probs[idx],  
-            'label': preds[idx]
+            'pred': preds[idx]
         }
 
         dataset_results.append(result)
 
 
-    return dataset_results, preds, base64_time, zulu_time, cipher_time
+    return dataset_results, base64_time, zulu_time, cipher_time
 
 
 
@@ -187,56 +167,53 @@ def main():
     total_base64_time = []
     total_zulu_time = []
     total_cipher_time = []
-    
-
-    # Load datasets
-    # datasets, categories = load_selected_datasets(selected_datasets)
-    df = pd.read_csv('./data/10_attacked_prompts_test.csv')
-    prompts = df['prompt'].tolist()
-    attacked_prompts = df['transformed_prompt'].tolist()
-    categories = df['Summarized Category'].tolist()
-    attack_method = df['attack_method'].tolist()
+    # Load data
+    all_file_paths = [
+                        "./data/split_attack_prompts/AIM_data",
+                        "./data/split_attack_prompts/base64_data",
+                        "./data/split_attack_prompts/caesar_cipher_data",
+                        "./data/split_attack_prompts/CC_data",
+                        "./data/split_attack_prompts/combination_data",
+                        "./data/split_attack_prompts/DAN_data",
+                        "./data/split_attack_prompts/deepInception_data",
+                        "./data/split_attack_prompts/dual_use_data",
+                        "./data/split_attack_prompts/self_cipher_data",
+                        "./data/split_attack_prompts/zulu_data",
+                    ] 
+    test_df = load_and_concatenate_test_csv(all_file_paths, subset="test", percentage=1) #since all test.csvs are the same, just need to load once
+    test_plain = test_df["prompt"].tolist()
+    test_plain = list(set(test_plain))
+    test_attacked = test_df["transformed_prompt"].tolist()
+    categories = test_df['Summarized Category'].tolist()
+    methods = test_df['attack_method'].tolist()
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
 
     hf_token = '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'  # Replace with your token
-    model_id = "meta-llama/Llama-Guard-3-8B"
 
-    tokenizer = AutoTokenizer.from_pretrained("MickyMike/DecipherGuard")
+    tokenizer = AutoTokenizer.from_pretrained("MickyMike/decipher_lora_5-2")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained("MickyMike/DecipherGuard", device_map = 'cuda:0',torch_dtype=torch.bfloat16, use_cache=False)
+    model = AutoModelForCausalLM.from_pretrained("MickyMike/decipher_lora_5-2", device_map = 'cuda:0',torch_dtype=torch.bfloat16, use_cache=False)
     
-    all_results = []
-
-    # Iterate over each attack and dataset
-
-    labels = [1] * len(prompts)  # Assuming all harmful prompts are labeled as 1
 
     
-    dataset_results, preds, base64_time, zulu_time, cipher_time = evaluate_guardrail(model, tokenizer,prompts, attacked_prompts, categories, attack_method, guardrail_name = 'DecipherGuard_LlamaGuard')
-
-
-    total_base64_time += base64_time
-    total_zulu_time += zulu_time
-    total_cipher_time += cipher_time
-    # Compute metrics
-    accuracy, precision, recall, f1, auprc, attack_success_rate = compute_metrics(labels, preds)
+    attacked_results,base64_time, zulu_time, cipher_time = evaluate_guardrail(model, tokenizer, test_attacked, categories, '80_test', methods, guardrail_name = 'DecipherGuard')
+    plain_results,plain_base64_time, plain_zulu_time, plain_cipher_time= evaluate_guardrail(model, tokenizer, test_plain, categories, '80_test', methods, guardrail_name = 'DecipherGuard')
 
     # Save results and metrics
-    metrics = [[
-        attack_name, dataset_name, accuracy, precision, recall, f1, auprc, attack_success_rate
-    ]]
-    save_results_and_metrics(dataset_results, metrics, dataset_name, attack_name, 'DecipherGuard_LlamaGuard')
+    dataset_results = plain_results+attacked_results
+
+    save_results(dataset_results,  '80_test', 'DecipherGuard')
             
     
     
     with open("./finetuned_base64time.pkl", "wb+") as f:
-        pickle.dump(total_base64_time, f)
+        pickle.dump(base64_time+plain_base64_time, f)
     with open("./finetuned_zulutime.pkl", "wb+") as f:
-        pickle.dump(total_zulu_time, f)
+        pickle.dump(zulu_time+plain_zulu_time, f)
     with open("./finetuned_ciphertime.pkl", "wb+") as f:
-        pickle.dump(total_cipher_time, f)
+        pickle.dump(cipher_time+plain_cipher_time, f)
 if __name__ == '__main__':
     main()

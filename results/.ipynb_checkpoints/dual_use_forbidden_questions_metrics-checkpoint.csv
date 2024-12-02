@@ -1,2 +1,0 @@
-Attack,Dataset,Accuracy,Precision,Recall,F1 Score,AUPRC,Attack Success Rate
-Baseline,forbidden_questions,0.34102564102564104,1.0,0.34102564102564104,0.5086042065009561,1.0,0.658974358974359

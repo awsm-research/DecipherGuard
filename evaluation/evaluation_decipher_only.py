@@ -44,22 +44,15 @@ def caesar_encrypt(plaintext, shift):
     
     return encrypted_text
 
-# Map attack names to functions
-attack_functions = {
-    'AIM': AIM,
-    'DAN': DAN,
-    'combination': combination,
-    'base64': base64_attack,
-    'dual_use': SmartGPT_Attack,
-    'caesar_cipher': caesar_attack,
-    'self_cipher': self_cipher_attack,
-    'zulu': translate_to_zulu,
-    'deepInception': deepInception_attack,
-    'CC': code_chameleon
-    
-}
 
 
+def load_and_concatenate_test_csv(file_paths, subset, percentage):
+    temp = [file+f"_{percentage}_percent/"+f"{subset}.csv" for file in file_paths]
+    # Load each CSV into a list of DataFrames
+    dfs = [pd.read_csv(file+f"_{percentage}_percent/"+f"{subset}.csv") for file in file_paths]
+    # Concatenate all DataFrames into one
+    combined_df = pd.concat(dfs, ignore_index=True)
+    return combined_df
 
 
 # Function to evaluate guardrails
@@ -73,7 +66,7 @@ def evaluate_guardrail(model, tokenizer, prompts,  categories, dataset_name, att
     zulu_time = []
     cipher_time = []
     
-    for chat in tqdm([prompts]):
+    for chat in tqdm(prompts):
 
         start = datetime.now()
         model_input = decode_base64(chat)
@@ -182,20 +175,20 @@ def moderate_probability(chat, tokenizer, model, device='cuda'):
 def main():
     # Load data
     all_file_paths = [
-                        "../data/split_attack_prompts/AIM_data",
-                        "../data/split_attack_prompts/base64_data",
-                        "../data/split_attack_prompts/caesar_cipher_data",
-                        "../data/split_attack_prompts/CC_data",
-                        "../data/split_attack_prompts/combination_data",
-                        "../data/split_attack_prompts/DAN_data",
-                        "../data/split_attack_prompts/deepInception_data",
-                        "../data/split_attack_prompts/dual_use_data",
-                        "../data/split_attack_prompts/self_cipher_data",
-                        "../data/split_attack_prompts/zulu_data",
+                        "./data/split_attack_prompts/AIM_data",
+                        "./data/split_attack_prompts/base64_data",
+                        "./data/split_attack_prompts/caesar_cipher_data",
+                        "./data/split_attack_prompts/CC_data",
+                        "./data/split_attack_prompts/combination_data",
+                        "./data/split_attack_prompts/DAN_data",
+                        "./data/split_attack_prompts/deepInception_data",
+                        "./data/split_attack_prompts/dual_use_data",
+                        "./data/split_attack_prompts/self_cipher_data",
+                        "./data/split_attack_prompts/zulu_data",
                     ] 
     test_df = load_and_concatenate_test_csv(all_file_paths, subset="test", percentage=1) #since all test.csvs are the same, just need to load once
     test_plain = test_df["prompt"].tolist()
-    test_plain = set(test_plain)
+    test_plain = list(set(test_plain))
     test_attacked = test_df["transformed_prompt"].tolist()
     categories = test_df['Summarized Category'].tolist()
     methods = test_df['attack_method'].tolist()
@@ -203,16 +196,16 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
 
-    hf_token = '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'  # Replace with your token
+    hf_token = ''  #TODO Replace with your token
     model_id = "meta-llama/Llama-Guard-3-8B"
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, token=hf_token)
     model = AutoModelForCausalLM.from_pretrained(model_id, token=hf_token, torch_dtype=dtype, device_map=device)
 
-    attacked_results,base64_time, zulu_time, cipher_time = evaluate_guardrail(test_attacked, categories, '80_test', methods, guardrail_name = 'Decipher_Only_LlamaGuard')
-    plain_results,plain_base64_time, plain_zulu_time, plain_cipher_time= evaluate_guardrail(test_plain, categories, '80_test', methods, guardrail_name = 'Decipher_Only_LlamaGuard')
+    attacked_results,base64_time, zulu_time, cipher_time = evaluate_guardrail(model, tokenizer, test_attacked, categories, '80_test', methods, guardrail_name = 'Decipher_Only_LlamaGuard')
+    plain_results,plain_base64_time, plain_zulu_time, plain_cipher_time= evaluate_guardrail(model, tokenizer, test_plain, categories, '80_test', methods, guardrail_name = 'Decipher_Only_LlamaGuard')
     # Save results and metrics
-    dataset_results = plain_results.append(plain_results, ignore_index=True)
+    dataset_results = plain_results+attacked_results
 
     save_results(dataset_results,  '80_test', 'Decipher_Only_LlamaGuard')
 
