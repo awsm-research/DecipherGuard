@@ -19,10 +19,10 @@
     <li>
       <a href="#how-to-replicate">How to replicate</a>
         <ul>
-          <li><a href="#about-the-environment-setup">About the Environment Setup</a></li>
-          <li><a href="#about-the-datasets">About the Datasets</a></li>
-          <li><a href="#about-the-models">About the Models</a></li>
-          <li><a href="#about-the-experiment-replication">About the Experiment Replication</a></li>
+          <li><a href="#environment-setup">Environment Setup</a></li>
+          <li><a href="#datasets">Datasets</a></li>
+          <li><a href="#models">Models</a></li>
+          <li><a href="#experiment-replication">Experiment Replication</a></li>
         </ul>
     </li>
     <li>
@@ -32,15 +32,12 @@
       <a href="#acknowledgements">Acknowledgements</a>
     </li>
     <li>
-      <a href="#license">License</a>
-    </li>
-    <li>
       <a href="#citation">Citation</a>
     </li>
   </ol>
 </details>
 
-## 🚀 How to Replicate
+## How to Replicate
 
 ### Environment Setup
 First of all, clone this repository to your local machine and access the main dir via the following command:
@@ -53,7 +50,7 @@ Then, install the python dependencies via the following command:
 ```
 pip install -r requirements.txt
 ```
-### Dataset
+### Datasets
 This repo uses the following datasets:
 - [CategoricalHarmfulQA](https://huggingface.co/datasets/declare-lab/CategoricalHarmfulQA)
 - [do-not-answer](https://huggingface.co/datasets/LibrAI/do-not-answer)
@@ -103,8 +100,25 @@ python -m evaluation.evaluation_decipherguard
 ```
 To retrain the DecipherGuard model, run the following commands (Training + Inference):
 ```
-TODO
+cd DecipherGuard/train
+python lora_decipher_main.py \
+    --training_proportion=ENTER YOUR VALUE HERE (e.g., 1, 3, 5, 7, 10) \
+    --do_train \
+    --batch_size=1 \
+    --data_dir=data \
+    --model_name_or_path=meta-llama/Llama-Guard-3-8B \
+    --saved_model_name=decipherguard \
+    --learning_rate=1e-4 \
+    --epochs=1 \
+    --max_grad_norm=1.0 \
+    --lora_r=8 \
+    --lora_alpha=32 \
+    --lora_dropout=0.1 \
+    --max_train_input_length=2048 \
+    --max_new_tokens=100 \
+    --seed 123456  2>&1 | tee decipher_lora.log
 ```
+
 ### How to replicate RQ4
 To reproduce the RQ4 result, run the following commands (Inference only):
 ```
