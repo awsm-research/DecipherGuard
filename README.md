@@ -13,9 +13,10 @@
 </p>
 
 <p align="center">
-    <h3 align="center"> 🚀 DecipherGuard is Available in Huggingface Model Hub 🚀 </h3>
+    <h3 align="center"> 🚀 DecipherGuard is Available in <a href="https://huggingface.co/MickyMike/DecipherGuard">Huggingface Model Hub</a> 🚀 </h3>
     <img src="logo/model_card.png" alt="Model Card" centered/>
 </p>
+
 
 #### Load the model with a single line of code 💨
 ```
