@@ -12,3 +12,173 @@
   </p>
 </p>
 
+<!-- Table of contents -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#how-to-replicate">How to replicate</a>
+        <ul>
+          <li><a href="#about-the-environment-setup">About the Environment Setup</a></li>
+          <li><a href="#about-the-datasets">About the Datasets</a></li>
+          <li><a href="#about-the-models">About the Models</a></li>
+          <li><a href="#about-the-experiment-replication">About the Experiment Replication</a></li>
+        </ul>
+    </li>
+    <li>
+      <a href="#appendix">Appendix</a>
+    </li>
+    <li>
+      <a href="#acknowledgements">Acknowledgements</a>
+    </li>
+    <li>
+      <a href="#license">License</a>
+    </li>
+    <li>
+      <a href="#citation">Citation</a>
+    </li>
+  </ol>
+</details>
+
+## 🚀 How to Replicate
+
+### Environment Setup
+First of all, clone this repository to your local machine and access the main dir via the following command:
+```
+git clone https://github.com/awsm-research/DecipherGuard.git
+cd DecipherGuard
+```
+
+Then, install the python dependencies via the following command:
+```
+pip install -r requirements.txt
+```
+### Dataset
+This repo uses the following datasets:
+- [CategoricalHarmfulQA](https://huggingface.co/datasets/declare-lab/CategoricalHarmfulQA)
+- [do-not-answer](https://huggingface.co/datasets/LibrAI/do-not-answer)
+- [AdvBench](https://huggingface.co/datasets/walledai/AdvBench)
+- [forbidden_question](https://github.com/verazuo/jailbreak_llms/tree/main/data/forbidden_question)
+- [alpaca](https://github.com/vinid/safety-tuned-llamas/blob/main/data/training/alpaca_small.json)
+
+The datasets have been compiled, transformed by jailbreak attack functions, split into 80% testing and 1-10\% training, and stored at /data/split_attack_prompts
+
+### Models
+To replicate the experiment results, the following models are used:
+
+- [Llama-Guard-3-8B](https://huggingface.co/meta-llama/Llama-Guard-3-8B)
+- [OpenAI Moderation (omni-moderation-latest)](https://platform.openai.com/docs/guides/moderation/overview?lang=curl)
+- [PerspectiveAPI (v1alpha1)](https://developers.perspectiveapi.com/s/?language=en_US)
+- [Perplexity (GPT2)](https://huggingface.co/openai-community/gpt2)
+- [DecipherGuard](https://huggingface.co/MickyMike/decipher_lora_5-2)
+
+The models used can either be accessed from their huggingface pages, or as public, free APIs.
+
+### Experiment Replication
+To replicate the empirical results of the experiment, please use the run the following commands to get the prediction of each model:
+```
+  cd DecipherGuard
+  python -m evaluate.evaluation_decipherguard
+  python -m evaluation.evaluation_llamaguard
+  python -m evaluation.evaluation_openai_moderation
+  python -m evaluation.evaluation_perspectiveAPI
+  python -m evaluation.evaluation_perplexity
+  ```
+We recommend to use **GPU with 16 GB up memory** for inferencing since **LlamaGuard is quite computational intensive**. 
+
+### How to replicate RQ1
+To reproduce the RQ1 result, run the following commands (Inference only):
+```
+cd DecipherGuard
+  python -m evaluation.evaluation_llamaguard
+  python -m evaluation.evaluation_openai_moderation
+  python -m evaluation.evaluation_perspectiveAPI
+  python -m evaluation.evaluation_perplexity
+```
+### How to replicate RQ2 & RQ3
+To reproduce the RQ2&3 result, run the following commands (Inference only):
+```
+cd DecipherGuard
+  python -m evaluation.evaluation_decipherguard
+```
+To retrain the DecipherGuard model, run the following commands (Training + Inference):
+```
+TODO
+```
+### How to replicate RQ4
+To reproduce the RQ4 result, run the following commands (Inference only):
+```
+cd DecipherGuard
+  python -m evaluation.evaluation_decipher_only
+```
+
+### How to replicate the ablation study in the discussion section
+```
+cd DecipherGuard
+  python -m lora.lora_testing_loop
+```
+This will produce the LoRa model results in in discussion section, specifically for the 6 different % of the training data used (1%,3%,5%,7%,10%,20%)
+
+## Appendix
+
+<div align="center">
+
+<h3>
+    <b>
+            Results of RQ1
+    </b>
+</h3>
+
+|      Model       |  DSR w/o jailbreak | DSR w/ jailbreak | 
+|:----------------:|:------------------:|:----------------:|
+|    LlamaGuard    |        0.81        |    0.57          | 
+|OpenAI Moderation |        0.76        |    0.39          | 
+| PerspectiveAPI   |        0.03        |    0.15          |
+|     Perplexity   |        0.15        |    0.28          | 
+
+
+<h3>
+    <b>
+            Results of RQ2
+    </b>
+</h3>
+
+|      Model       |   DSR w/ jailbreak | 
+|:----------------:|:------------------:|
+|  DecipherGuard   |      0.94          |
+|    LlamaGuard    |      0.57          | 
+|OpenAI Moderation |      0.39          | 
+|     Perplexity   |      0.28          | 
+
+
+<h3>
+    <b>
+            Results of RQ3
+    </b>
+</h3>
+
+|      Model       |   OGP w/ jailbreak | 
+|:----------------:|:------------------:|
+|  DecipherGuard   |      0.96          |
+|    LlamaGuard    |      0.75          | 
+|OpenAI Moderation |      0.62          | 
+|     Perplexity   |      0.45          | 
+
+<h3>
+    <b>
+            Results of RQ4
+    </b>
+</h3>
+
+|      Model       |   OGP w/ jailbreak | DSR w/ jailbreak | 
+|:----------------:|:------------------:|:------------------:|
+|  DecipherGuard   |      0.96          |      0.94        |
+|LoRa + LLamaGuard |      0.95       |     0.92         |
+|Decipher + LlamaGuard|      0.67          |      0.76        |
+|   LlamaGuard     |      0.75          |     0.57         |
+
+</div> 
+
+## Acknowledgements
+
+  

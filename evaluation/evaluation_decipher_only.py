@@ -203,17 +203,16 @@ def main():
     model = AutoModelForCausalLM.from_pretrained(model_id, token=hf_token, torch_dtype=dtype, device_map=device)
 
     attacked_results,base64_time, zulu_time, cipher_time = evaluate_guardrail(model, tokenizer, test_attacked, categories, '80_test', methods, guardrail_name = 'Decipher_Only_LlamaGuard')
-    plain_results,plain_base64_time, plain_zulu_time, plain_cipher_time= evaluate_guardrail(model, tokenizer, test_plain, categories, '80_test', methods, guardrail_name = 'Decipher_Only_LlamaGuard')
     # Save results and metrics
-    dataset_results = plain_results+attacked_results
+    dataset_results = attacked_results
 
     save_results(dataset_results,  '80_test', 'Decipher_Only_LlamaGuard')
 
     with open("./base64time.pkl", "wb+") as f:
-        pickle.dump(base64_time+plain_base64_time, f)
+        pickle.dump(base64_time, f)
     with open("./zulutime.pkl", "wb+") as f:
-        pickle.dump(zulu_time+plain_zulu_time, f)
+        pickle.dump(zulu_time, f)
     with open("./ciphertime.pkl", "wb+") as f:
-        pickle.dump(cipher_time+plain_cipher_time, f)
+        pickle.dump(cipher_time, f)
 if __name__ == '__main__':
     main()

@@ -190,7 +190,7 @@ def main():
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
 
-    hf_token = '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'  # Replace with your token
+    hf_token = ''  #TODO Replace with your token
 
     tokenizer = AutoTokenizer.from_pretrained("MickyMike/decipher_lora_5-2")
     if tokenizer.pad_token is None:
@@ -200,20 +200,19 @@ def main():
 
     
     attacked_results,base64_time, zulu_time, cipher_time = evaluate_guardrail(model, tokenizer, test_attacked, categories, '80_test', methods, guardrail_name = 'DecipherGuard')
-    plain_results,plain_base64_time, plain_zulu_time, plain_cipher_time= evaluate_guardrail(model, tokenizer, test_plain, categories, '80_test', methods, guardrail_name = 'DecipherGuard')
 
     # Save results and metrics
-    dataset_results = plain_results+attacked_results
+    dataset_results = attacked_results
 
     save_results(dataset_results,  '80_test', 'DecipherGuard')
             
     
     
     with open("./finetuned_base64time.pkl", "wb+") as f:
-        pickle.dump(base64_time+plain_base64_time, f)
+        pickle.dump(base64_time, f)
     with open("./finetuned_zulutime.pkl", "wb+") as f:
-        pickle.dump(zulu_time+plain_zulu_time, f)
+        pickle.dump(zulu_time, f)
     with open("./finetuned_ciphertime.pkl", "wb+") as f:
-        pickle.dump(cipher_time+plain_cipher_time, f)
+        pickle.dump(cipher_time, f)
 if __name__ == '__main__':
     main()

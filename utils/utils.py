@@ -13,11 +13,6 @@ def load_selected_datasets(selected_datasets):
         DNA_prompts = [item['question'] for item in DNA['train'] if item['risk_area'] in ['Malicious Uses', 'Discrimination, Exclusion, Toxicity, Hateful, Offensive']]
         categories['DNA'] = [item['types_of_harm'] for item in DNA['train'] if item['risk_area'] in ['Malicious Uses', 'Discrimination, Exclusion, Toxicity, Hateful, Offensive']]
         datasets['DNA'] = DNA_prompts
-    if 'DNA2' in selected_datasets:
-        DNA = load_dataset('LibrAI/do-not-answer')
-        DNA2_prompts = [item['question'] for item in DNA['train'] if item['risk_area'] not in ['Malicious Uses', 'Discrimination, Exclusion, Toxicity, Hateful, Offensive']]
-        categories['DNA2'] = [item['types_of_harm'] for item in DNA['train'] if item['risk_area'] not in ['Malicious Uses', 'Discrimination, Exclusion, Toxicity, Hateful, Offensive']]
-        datasets['DNA2'] = DNA2_prompts
     if 'advBench' in selected_datasets:
         advBench = load_dataset('walledai/AdvBench')
         datasets['advBench'] = advBench['train']['prompt']
@@ -28,12 +23,6 @@ def load_selected_datasets(selected_datasets):
         datasets['forbidden_questions'] = forbidden_questions['question'].tolist()
         categories['forbidden_questions'] = forbidden_questions['content_policy_name'].tolist()
 
-    if 'deepInception' in selected_datasets:
-        with open('./data/DeepInception/data_main.json') as f:
-            deepInception = json.load(f)
-        deepInception_prompts = [d['plain_attack'] for d in deepInception]
-        datasets['deepInception'] = deepInception_prompts
-        categories['deepInception'] = [d['topic'] for d in deepInception]
 
     if 'HarmfulQA' in selected_datasets:
         HarmfulQA = load_dataset("declare-lab/CategoricalHarmfulQA")
