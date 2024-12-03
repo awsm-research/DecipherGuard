@@ -75,11 +75,11 @@ The datasets have been compiled, transformed by jailbreak attack functions, spli
 ### Models
 To replicate the experiment results, the following models are used:
 
+- [DecipherGuard](https://huggingface.co/MickyMike/decipher_lora_5-2)
 - [Llama-Guard-3-8B](https://huggingface.co/meta-llama/Llama-Guard-3-8B)
 - [OpenAI Moderation (omni-moderation-latest)](https://platform.openai.com/docs/guides/moderation/overview?lang=curl)
 - [PerspectiveAPI (v1alpha1)](https://developers.perspectiveapi.com/s/?language=en_US)
 - [Perplexity (GPT2)](https://huggingface.co/openai-community/gpt2)
-- [DecipherGuard](https://huggingface.co/MickyMike/decipher_lora_5-2)
 
 The models used can either be accessed from their huggingface pages, or as public, free APIs.
 
@@ -206,6 +206,7 @@ This will produce the LoRa model results in in discussion section, specifically 
 </div> 
 
 ## Acknowledgements
+TODO
 
 ## Citation
 ```
