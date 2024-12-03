@@ -90,16 +90,16 @@ We recommend to use **GPU with 16 GB up memory** for inferencing since **LlamaGu
 To reproduce the RQ1 result, run the following commands (Inference only):
 ```
 cd DecipherGuard
-  python -m evaluation.evaluation_llamaguard
-  python -m evaluation.evaluation_openai_moderation
-  python -m evaluation.evaluation_perspectiveAPI
-  python -m evaluation.evaluation_perplexity
+python -m evaluation.evaluation_llamaguard
+python -m evaluation.evaluation_openai_moderation
+python -m evaluation.evaluation_perspectiveAPI
+python -m evaluation.evaluation_perplexity
 ```
 ### How to replicate RQ2 & RQ3
 To reproduce the RQ2&3 result, run the following commands (Inference only):
 ```
 cd DecipherGuard
-  python -m evaluation.evaluation_decipherguard
+python -m evaluation.evaluation_decipherguard
 ```
 To retrain the DecipherGuard model, run the following commands (Training + Inference):
 ```
@@ -109,13 +109,13 @@ TODO
 To reproduce the RQ4 result, run the following commands (Inference only):
 ```
 cd DecipherGuard
-  python -m evaluation.evaluation_decipher_only
+python -m evaluation.evaluation_decipher_only
 ```
 
 ### How to replicate the ablation study in the discussion section
 ```
 cd DecipherGuard
-  python -m lora.lora_testing_loop
+python -m lora.lora_testing_loop
 ```
 This will produce the LoRa model results in in discussion section, specifically for the 6 different % of the training data used (1%,3%,5%,7%,10%,20%)
 
@@ -181,4 +181,7 @@ This will produce the LoRa model results in in discussion section, specifically 
 
 ## Acknowledgements
 
-  
+## Citation
+```
+TODO
+```
