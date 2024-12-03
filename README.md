@@ -12,6 +12,11 @@
   </p>
 </p>
 
+```
+AutoTokenizer.from_pretrained("MickyMike/DecipherGuard")
+AutoModelForCausalLM.from_pretrained("MickyMike/DecipherGuard")
+```
+
 <!-- Table of contents -->
 <details open="open">
   <summary>Table of Contents</summary>
