@@ -12,6 +12,12 @@
   </p>
 </p>
 
+<p align="center">
+    <h3 align="center"> 🚀 DecipherGuard is Available in Huggingface Model Hub 🚀 </h3>
+    <img src="logo/model_card.png" alt="Model Card" centered/>
+</p>
+
+#### Load the model with a single line of code 💨
 ```
 AutoTokenizer.from_pretrained("MickyMike/DecipherGuard")
 AutoModelForCausalLM.from_pretrained("MickyMike/DecipherGuard")
