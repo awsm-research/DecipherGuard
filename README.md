@@ -77,13 +77,13 @@ The models used can either be accessed from their huggingface pages, or as publi
 ### Experiment Replication
 To replicate the empirical results of the experiment, please use the run the following commands to get the prediction of each model:
 ```
-  cd DecipherGuard
-  python -m evaluate.evaluation_decipherguard
-  python -m evaluation.evaluation_llamaguard
-  python -m evaluation.evaluation_openai_moderation
-  python -m evaluation.evaluation_perspectiveAPI
-  python -m evaluation.evaluation_perplexity
-  ```
+cd DecipherGuard
+python -m evaluate.evaluation_decipherguard
+python -m evaluation.evaluation_llamaguard
+python -m evaluation.evaluation_openai_moderation
+python -m evaluation.evaluation_perspectiveAPI
+python -m evaluation.evaluation_perplexity
+```
 We recommend to use **GPU with 16 GB up memory** for inferencing since **LlamaGuard is quite computational intensive**. 
 
 ### How to replicate RQ1
@@ -125,13 +125,13 @@ This will produce the LoRa model results in in discussion section, specifically 
 
 <h3>
     <b>
-            Results of RQ1
+            Results of RQ1 (Evaluate Existing SOTA Runtime Guardrails)
     </b>
 </h3>
 
-|      Model       |  DSR w/o jailbreak | DSR w/ jailbreak | 
+|      Model       |  Defence Success Rate (DSR) w/o jailbreak | Defence Success Rate (DSR) w/ jailbreak | 
 |:----------------:|:------------------:|:----------------:|
-|    LlamaGuard    |        0.81        |    0.57          | 
+|    **LlamaGuard**    |        **0.81**        |    **0.57**          | 
 |OpenAI Moderation |        0.76        |    0.39          | 
 | PerspectiveAPI   |        0.03        |    0.15          |
 |     Perplexity   |        0.15        |    0.28          | 
@@ -139,13 +139,13 @@ This will produce the LoRa model results in in discussion section, specifically 
 
 <h3>
     <b>
-            Results of RQ2
+            Results of RQ2 (Compare Defence Capability of our DecipherGuard with SOTA Runtime Guardrails)
     </b>
 </h3>
 
-|      Model       |   DSR w/ jailbreak | 
+|      Model       |   Defence Success Rate (DSR) w/ jailbreak | 
 |:----------------:|:------------------:|
-|  DecipherGuard   |      0.94          |
+|  **DecipherGuard**   |      **0.94**          |
 |    LlamaGuard    |      0.57          | 
 |OpenAI Moderation |      0.39          | 
 |     Perplexity   |      0.28          | 
@@ -153,26 +153,26 @@ This will produce the LoRa model results in in discussion section, specifically 
 
 <h3>
     <b>
-            Results of RQ3
+            Results of RQ3 (Compare Overall Performance of our DecipherGuard with SOTA Runtime Guardrails)
     </b>
 </h3>
 
-|      Model       |   OGP w/ jailbreak | 
+|      Model       |   Overall Guardrail Performance (OGP) w/ jailbreak | 
 |:----------------:|:------------------:|
-|  DecipherGuard   |      0.96          |
+|  **DecipherGuard**   |      **0.96**          |
 |    LlamaGuard    |      0.75          | 
 |OpenAI Moderation |      0.62          | 
 |     Perplexity   |      0.45          | 
 
 <h3>
     <b>
-            Results of RQ4
+            Results of RQ4 (Ablation Study of our DecipherGuard)
     </b>
 </h3>
 
-|      Model       |   OGP w/ jailbreak | DSR w/ jailbreak | 
+|      Model       |   Overall Guardrail Performance (OGP) w/ jailbreak | Defence Success Rate (DSR) w/ jailbreak | 
 |:----------------:|:------------------:|:------------------:|
-|  DecipherGuard   |      0.96          |      0.94        |
+|  **DecipherGuard**   |      **0.96**          |      **0.94**        |
 |LoRa + LLamaGuard |      0.95       |     0.92         |
 |Decipher + LlamaGuard|      0.67          |      0.76        |
 |   LlamaGuard     |      0.75          |     0.57         |
