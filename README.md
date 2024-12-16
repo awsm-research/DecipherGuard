@@ -1,4 +1,4 @@
-# DecipherGuard
+# DecipherGuard (Replication Package)
 
 
 <!-- LOGO -->
@@ -206,9 +206,9 @@ This will produce the LoRa model results in in discussion section, specifically 
 </div> 
 
 ## Acknowledgements
-TODO
+We would like to express our gratitude to the author of [LlamaGuard](https://arxiv.org/abs/2312.06674) for their foundational work and inspiration, as well as the creators of the datasets used in this repository: [CategoricalHarmfulQA](https://huggingface.co/datasets/declare-lab/CategoricalHarmfulQA), [do-not-answer](https://huggingface.co/datasets/LibrAI/do-not-answer), [AdvBench](https://huggingface.co/datasets/walledai/AdvBench), [forbidden_question](https://github.com/verazuo/jailbreak_llms/tree/main/data/forbidden_question), and [alpaca](https://github.com/vinid/safety-tuned-llamas/blob/main/data/training/alpaca_small.json). Their efforts in curating and maintaining these resources were invaluable to this research.
 
 ## Citation
 ```
-TODO
+Under Review at IEEE TSE
 ```
