@@ -210,5 +210,5 @@ We would like to express our gratitude to the author of [LlamaGuard](https://arx
 
 ## Citation
 ```
-Under Review at IEEE TSE
+Under Review at ACM TOSEM
 ```
